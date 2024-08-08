@@ -178,14 +178,10 @@ public:
       {
         ctx.begin_path();
 
-        // Normalize the value to range [0, 1]
-        float normalized_value = (n.value + 1.0f) / 2.0f;
+        // Get color from gradient based on value
+        auto [r, g, b] = interpolate_gradient(n.value);
 
-        // Interpolate between dark blue and light blue
-        uint8_t g = static_cast<uint8_t>(normalized_value * 255);      // Transition from 0 (dark blue) to 255 (light blue)
-        uint8_t b = static_cast<uint8_t>(normalized_value * 255);      // Blue component varies from dark to light
-
-        ctx.set_fill_color({0, g, b, 255});
+        ctx.set_fill_color({r, g, b, 255});
         ctx.set_stroke_color({255, 255, 255, 255});
         ctx.draw_circle((n.x - center_x) * scale + width() / 2, (n.y - center_y) * scale + height() / 2, 10);
         ctx.fill();
@@ -193,7 +189,7 @@ public:
         ctx.close_path();
       }
 
-      //Draw the channels on active nodes
+      //Write the channels on active nodes
       ctx.begin_path();
       for (size_t i = 0; i < rect_activenodes.size(); ++i)
       {
@@ -202,7 +198,7 @@ public:
         ctx.set_stroke_color({255, 255, 255, 255});
 
         //Convert the channel to a string
-        std::string channel_text = std::to_string(n.channel);
+        std::string channel_text = std::to_string(n.channel-1);
 
         //Adjustments to center the text in node's circles
         float text_offset_x = 3.0f;
@@ -288,7 +284,38 @@ public:
     //We send information to the UI to display the mesh
     send_message(processor_to_ui{.send_activenodes=m_activenodes,.send_passivenodes=m_passivenodes});
   }
-  void loadLayout();
-};
 
+  //Defined in the cpp
+  void loadLayout();
+
+  //This method is used to calculate the color of the active node knowing their actual value
+  static std::tuple<uint8_t, uint8_t, uint8_t> interpolate_gradient(float value) {
+    //I order to have our linear gradient of color, we have to do an interpolation
+    std::vector<std::tuple<float, uint8_t, uint8_t, uint8_t>> gradient = {
+        {0.0f, 194, 77, 0},    //On lower values we want orange
+        {0.5f, 140, 117, 15},  //On the base value we want a yellow/brown
+        {1.0f, 0, 129, 153}    //On highest values we want teal/blue
+    };
+
+    //Normalize the value to range [0, 1]
+    float normalized_value = (value + 1.0f) / 2.0f;
+
+    //Find the two gradient stops to interpolate between
+    for (size_t i = 1; i < gradient.size(); ++i) {
+      if (normalized_value <= std::get<0>(gradient[i])) {
+        float t = (normalized_value - std::get<0>(gradient[i - 1])) /
+                  (std::get<0>(gradient[i]) - std::get<0>(gradient[i - 1]));
+
+        uint8_t r = static_cast<uint8_t>((1 - t) * std::get<1>(gradient[i - 1]) + t * std::get<1>(gradient[i]));
+        uint8_t g = static_cast<uint8_t>((1 - t) * std::get<2>(gradient[i - 1]) + t * std::get<2>(gradient[i]));
+        uint8_t b = static_cast<uint8_t>((1 - t) * std::get<3>(gradient[i - 1]) + t * std::get<3>(gradient[i]));
+
+        return {r, g, b};
+      }
+    }
+
+    //Default to the last color if no interpolation match (shouldn't happen)
+    return {0, 130, 155};
+  }
+};
 }
