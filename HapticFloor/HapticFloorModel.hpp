@@ -23,6 +23,7 @@ public:
   halp_meta(c_name, "hapticfloor")
   halp_meta(author, "Jean-Michaël Celerier, Hugo Genillier")
   halp_meta(uuid, "2fcacb29-7309-478a-9400-380ded08a64f")
+  halp_meta(description, "To send signals to an haptic floor : enter a json layout file and set up an OSC device with a list child address as output.")
 
   struct ins
   {
