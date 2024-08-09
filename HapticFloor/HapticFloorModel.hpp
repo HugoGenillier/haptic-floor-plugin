@@ -174,20 +174,23 @@ public:
       }
       ctx.close_path();
 
-      //Draw active nodes
-      for (const auto& n : rect_activenodes)
+      for (size_t i = 0; i < rect_activenodes.size(); ++i)
       {
-        ctx.begin_path();
+        //Draw active nodes
+        const auto& n = rect_activenodes[i];
+        {
+          ctx.begin_path();
 
-        // Get color from gradient based on value
-        auto [r, g, b] = interpolate_gradient(n.value);
+          // Get color from gradient based on value
+          auto [r, g, b] = interpolate_gradient(n.value);
 
-        ctx.set_fill_color({r, g, b, 255});
-        ctx.set_stroke_color({255, 255, 255, 255});
-        ctx.draw_circle((n.x - center_x) * scale + width() / 2, (n.y - center_y) * scale + height() / 2, 10);
-        ctx.fill();
-        ctx.stroke();
-        ctx.close_path();
+          ctx.set_fill_color({r, g, b, 255});
+          ctx.set_stroke_color({255, 255, 255, 255});
+          ctx.draw_circle((n.x - center_x) * scale + width() / 2, (n.y - center_y) * scale + height() / 2, 10);
+          ctx.fill();
+          ctx.stroke();
+          ctx.close_path();
+        }
       }
 
       //Write the channels on active nodes

@@ -1,5 +1,5 @@
 #include "HapticFloor.hpp"
-
+#include <algorithm>
 
 namespace Example
 {
@@ -55,6 +55,8 @@ void HapticFloor::loadLayout()
     for (auto& n : m_passivenodes){
       n.coordinateToMesh();
     }
+    std::sort(m_activenodes.begin(),m_activenodes.end(),[](node a,node b)
+    {return a.channel<b.channel;});
   }
   catch(...)
   {
