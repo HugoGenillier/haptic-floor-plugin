@@ -19,7 +19,7 @@ class HapticFloor
 public:
   //We define metadata
   halp_meta(name, "Haptic floor")
-  halp_meta(category, "Plugins")
+  halp_meta(category, "Spatial")
   halp_meta(c_name, "hapticfloor")
   halp_meta(author, "Jean-Michaël Celerier, Hugo Genillier")
   halp_meta(uuid, "2fcacb29-7309-478a-9400-380ded08a64f")
